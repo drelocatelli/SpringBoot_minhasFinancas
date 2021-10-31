@@ -2,6 +2,7 @@ package io.spring.minhasFinancas.model.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -91,6 +92,11 @@ public class LancamentoServiceImpl implements LancamentoService {
 			throw new RuntimeException("Informe um tipo de lançamento!");
 		}
 		
+	}
+
+	@Override
+	public Optional<Lancamento> obterPorId(Long id) {
+		return repository.findById(id);
 	}
 	
 }
