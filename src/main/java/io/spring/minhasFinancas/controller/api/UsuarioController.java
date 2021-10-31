@@ -1,9 +1,8 @@
-package io.spring.minhasFinancas.api.controller;
+package io.spring.minhasFinancas.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +27,7 @@ public class UsuarioController {
 		
 		try {
 			
-			Usuario usuarioAutenticado = service.autenticar(dto.getEmail(), dto.getEmail());
+			Usuario usuarioAutenticado = service.autenticar(dto.getEmail(), dto.getSenha());
 			return new ResponseEntity(usuarioAutenticado, HttpStatus.OK);
 			
 		}catch(RuntimeException e) {

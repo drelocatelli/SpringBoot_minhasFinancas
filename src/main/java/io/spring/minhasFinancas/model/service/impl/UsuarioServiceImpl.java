@@ -29,7 +29,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 			throw new RuntimeException("Usuário não encontrado!");
 		}
 		
-		if(usuario.get().getSenha().equals(senha)) {
+		if(!usuario.get().getEmail().equals(email) || !usuario.get().getSenha().equals(senha)) {
 			throw new RuntimeException("Senha inválida!");
 		}
 		
@@ -50,6 +50,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 		if(existe) {
 			throw new RuntimeException("Já existe um usuário cadastrado com esse email.");
 		}
+	}
+
+	@Override
+	public Optional<Usuario> getById(Long id) {
+		return repository.findById(id);
 	}
 
 }

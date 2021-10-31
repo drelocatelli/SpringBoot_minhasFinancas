@@ -37,24 +37,24 @@ public class Lancamento {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	
 	@Column
 	@Lob
 	private String descricao;
 	
 	@Column
-	private int mes;
+	private Integer mes;
 	
 	@Column
-	private int ano;
+	private Integer ano;
 	
 	@ManyToOne
 	@JoinColumn(name = "id_usuario")
 	private Usuario usuario;
 	
 	@Column
-	private double valor;
+	private Double valor;
 	
 	@Column(name = "data_cadastro")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
