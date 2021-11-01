@@ -1,6 +1,6 @@
 package io.spring.minhasFinancas.model;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -23,9 +23,7 @@ import io.spring.minhasFinancas.model.enums.TipoLancamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "lancamento")

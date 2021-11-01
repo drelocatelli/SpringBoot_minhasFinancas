@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.spring.minhasFinancas.controller.api.dto.LancamentoDTO;
 import io.spring.minhasFinancas.model.Lancamento;
 import io.spring.minhasFinancas.model.Usuario;
 import io.spring.minhasFinancas.model.enums.StatusLancamento;
@@ -32,7 +33,7 @@ public class LancamentoController {
 	
 	@Autowired
 	private UsuarioService usuarioService;
-
+	
 	public LancamentoController(LancamentoService service, UsuarioService usuarioService) {
 		this.service = service;
 		this.usuarioService = usuarioService;
@@ -63,10 +64,10 @@ public class LancamentoController {
 		
 		return ResponseEntity.ok(lancamentos);
 		
-	}
+	}	
 
 	@PostMapping
-	public ResponseEntity salvar(@RequestBody Lancamento dto) {
+	public ResponseEntity salvar(@RequestBody LancamentoDTO dto) {
 				
 		try {
 			Lancamento entidade = converter(dto);
@@ -79,11 +80,12 @@ public class LancamentoController {
 	}
 	
 	@PutMapping("{id}")
-	public ResponseEntity atualizar(@PathVariable Long id, @RequestBody Lancamento dto) {
+	public ResponseEntity atualizar(@PathVariable Long id, @RequestBody LancamentoDTO dto) {
 		return service.obterPorId(id).map(entity -> {
 			try {
 				Lancamento lancamento = converter(dto);
 				lancamento.setId(entity.getId());
+				lancamento.setDataCadastro(entity.getDataCadastro());
 				service.atualizar(lancamento);
 				
 				return ResponseEntity.ok(lancamento);
@@ -91,6 +93,25 @@ public class LancamentoController {
 				return ResponseEntity.badRequest().body(e.getMessage());
 			}
 		}).orElseGet(() -> new ResponseEntity("Lançamento não encontrado.", HttpStatus.BAD_REQUEST));
+	}
+	
+	@PutMapping("{id}/atualiza-status")
+	public ResponseEntity atualizarStatus(@PathVariable("id") Long id, @RequestBody LancamentoDTO dto) {
+		return service.obterPorId(id).map(entity -> {
+			StatusLancamento statusSelecionado = StatusLancamento.valueOf(dto.getStatus());
+			if(statusSelecionado == null) {
+				return ResponseEntity.badRequest().body("Envie um status válido.");
+			}
+			
+			try {
+				entity.setStatus(statusSelecionado);
+				service.atualizar(entity);
+				return ResponseEntity.ok(entity);
+			} catch (RuntimeException e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
+		}).orElseGet(() -> new ResponseEntity("Lançamento não encontrado.", HttpStatus.BAD_REQUEST));
+		
 	}
 	
 	@DeleteMapping("{id}")
@@ -101,7 +122,7 @@ public class LancamentoController {
 		}).orElseGet(() -> new ResponseEntity("Lançamento não encontrado.", HttpStatus.BAD_REQUEST));
 	}
 	
-	private Lancamento converter(Lancamento dto) {
+	private Lancamento converter(LancamentoDTO dto) {
 		Lancamento lancamento = new Lancamento();
 		lancamento.setId(dto.getId());
 		lancamento.setDescricao(dto.getDescricao());
@@ -109,7 +130,7 @@ public class LancamentoController {
 		lancamento.setMes(dto.getMes());
 		lancamento.setValor(dto.getValor());
 		
-		Usuario usuario = usuarioService.getById(dto.getUsuario().getId())
+		Usuario usuario = usuarioService.getById(dto.getUsuario())
 				.orElseThrow( () -> new RuntimeException("Usuário não encontrado para o Id informado.") );
 		
 		lancamento.setUsuario(usuario);

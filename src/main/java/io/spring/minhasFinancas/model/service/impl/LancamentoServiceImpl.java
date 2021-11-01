@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import io.spring.minhasFinancas.model.Lancamento;
 import io.spring.minhasFinancas.model.enums.StatusLancamento;
+import io.spring.minhasFinancas.model.enums.TipoLancamento;
 import io.spring.minhasFinancas.model.repository.LancamentoRepository;
 import io.spring.minhasFinancas.model.service.LancamentoService;
 
@@ -97,6 +98,23 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	public Optional<Lancamento> obterPorId(Long id) {
 		return repository.findById(id);
+	}
+
+	@Override
+	@Transactional
+	public Double obterSaldoByUsuario(Long id) {
+		Double receitas = repository.obterSaldoByUsuario(id, TipoLancamento.RECEITA);
+		Double despesas = repository.obterSaldoByUsuario(id, TipoLancamento.DESPESA);
+		
+		if(receitas == null) {
+			receitas = 0.0;
+		}
+		
+		if(despesas == null) {
+			despesas = 0.0;
+		}
+		
+		return receitas - despesas;
 	}
 	
 }
