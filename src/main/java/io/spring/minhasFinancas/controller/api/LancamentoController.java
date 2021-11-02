@@ -44,6 +44,7 @@ public class LancamentoController {
 			@RequestParam(value = "descricao", required = false) String descricao, 
 			@RequestParam(value = "mes", required = false) Integer mes,
 			@RequestParam(value = "ano", required = false) Integer ano,
+			@RequestParam(value = "tipo", required = false) TipoLancamento tipo,
 			@RequestParam("usuario") Long idUsuario
 			) {
 		
@@ -51,16 +52,21 @@ public class LancamentoController {
 		lancamentoFiltro.setDescricao(descricao);
 		lancamentoFiltro.setMes(mes);
 		lancamentoFiltro.setAno(ano);
+		lancamentoFiltro.setTipo(tipo);
 		
 		Optional<Usuario> usuario = usuarioService.getById(idUsuario);
 		
-		if(usuario.isPresent()) {
-			return ResponseEntity.badRequest().body("Não foi possível realizar a consulta, usuário não encontrado.");
+		if(!usuario.isPresent()) {
+			return new ResponseEntity("Usuário não encontrado!", HttpStatus.NOT_FOUND);
 		}else {
 			lancamentoFiltro.setUsuario(usuario.get());
 		}
 		
 		List<Lancamento> lancamentos = service.buscar(lancamentoFiltro);
+		
+		if(lancamentos.isEmpty()) {
+			return new ResponseEntity("Nenhum lançamento foi encontrado.", HttpStatus.NOT_FOUND);
+		}
 		
 		return ResponseEntity.ok(lancamentos);
 		
