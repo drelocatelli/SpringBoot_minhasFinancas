@@ -2,9 +2,9 @@ import React from 'react';
 
 import Card from '../components/card';
 
-import axios from 'axios';
+import UsuarioService from '../app/service/usuarioService'
 
-import Backend from '../server';
+import axios from 'axios';
 
 class CadastroUsuario extends React.Component {
 
@@ -15,6 +15,11 @@ class CadastroUsuario extends React.Component {
         senhaRepeticao: '',
         message: null,
         messageType: null
+    }
+
+    constructor() {
+        super();
+        this.service = new UsuarioService();
     }
 
     clearInputs = () => {
@@ -29,19 +34,16 @@ class CadastroUsuario extends React.Component {
     cadastrar = () => {
         
         if(this.state.senha === this.state.senhaRepeticao){
-            axios.post(`${Backend.host}/api/usuarios`, {
+            this.service.salvar({
                 nome: this.state.nome,
                 email: this.state.email,
-                senha: this.state.senha,
+                senha: this.state.senha
             }).then(response => {
                 this.setState({ messageType: 'alert-success', message: 'Agora você está inscrito!',})
-
                 this.clearInputs()
 
-                console.log(response)
-
             }).catch(erro => {
-                this.setState({messageType: 'alert-danger', message: `Erro ${erro.response.status}:  ${erro.response.data}`})
+                this.setState({messageType: 'alert-danger', message: erro.response.data})
                 console.log(erro.response)
             })
         }else{
@@ -59,6 +61,7 @@ class CadastroUsuario extends React.Component {
                             <Card title="Inscrição">
                                 {(this.state.message != null) ? 
                                     <div className={`alert ${this.state.messageType}`}>
+                                        {this.state.messageType == 'alert-danger' ? <b>Erro: </b> : null}
                                         <span>{this.state.message}</span>
                                     </div>
                                 : null}
