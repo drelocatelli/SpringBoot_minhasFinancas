@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.spring.minhasFinancas.controller.api.dto.TokenDTO;
 import io.spring.minhasFinancas.controller.api.dto.UsuarioDTO;
 import io.spring.minhasFinancas.model.Usuario;
+import io.spring.minhasFinancas.model.service.JWTService;
 import io.spring.minhasFinancas.model.service.LancamentoService;
 import io.spring.minhasFinancas.model.service.UsuarioService;
 
@@ -30,18 +32,25 @@ public class UsuarioController {
 	@Autowired
 	private LancamentoService lancamentoService;
 	
-	public UsuarioController(UsuarioService service, LancamentoService lancamentoService) {
+	@Autowired
+	private JWTService jwtService;
+	
+	public UsuarioController(UsuarioService service, LancamentoService lancamentoService, JWTService jwtService) {
 		this.service = service;
 		this.lancamentoService = lancamentoService;
+		this.jwtService = jwtService;
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity autenticar(@RequestBody UsuarioDTO dto) {
+	public ResponseEntity<?> autenticar(@RequestBody UsuarioDTO dto) {
 		
 		try {
 			
 			Usuario usuarioAutenticado = service.autenticar(dto.getEmail(), dto.getSenha());
-			return new ResponseEntity(usuarioAutenticado, HttpStatus.OK);
+			String token = jwtService.gerarToken(usuarioAutenticado);
+			TokenDTO tokenDTO = new TokenDTO(usuarioAutenticado.getNome(), token);
+			
+			return new ResponseEntity(tokenDTO, HttpStatus.OK);
 			
 		}catch(RuntimeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());

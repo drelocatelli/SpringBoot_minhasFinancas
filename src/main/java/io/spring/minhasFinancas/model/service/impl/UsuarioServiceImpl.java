@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.spring.minhasFinancas.model.Usuario;
@@ -16,9 +17,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 	
 	@Autowired
 	private UsuarioRepository repository;
+	
+	@Autowired
+	private PasswordEncoder encoder;
 
-	public UsuarioServiceImpl(UsuarioRepository repository) {
+	public UsuarioServiceImpl(UsuarioRepository repository, PasswordEncoder encoder) {
 		this.repository = repository;
+		this.encoder = encoder;
 	}
 
 	@Override
@@ -29,7 +34,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 			throw new RuntimeException("Usuário não encontrado!");
 		}
 		
-		if(!usuario.get().getEmail().equals(email) || !usuario.get().getSenha().equals(senha)) {
+		boolean senhasBatem = encoder.matches(senha, usuario.get().getSenha());
+		
+		if(!usuario.get().getEmail().equals(email) || !senhasBatem) {
 			throw new RuntimeException("Senha inválida!");
 		}
 		
@@ -40,6 +47,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Transactional
 	public Usuario salvarUsuario(Usuario usuario) {
 		validarEmail(usuario.getEmail());
+		
+		String senha = usuario.getSenha();
+		String senhaCripto = encoder.encode(senha);
+		usuario.setSenha(senhaCripto);
+		
 		return repository.save(usuario);
 	}
 
